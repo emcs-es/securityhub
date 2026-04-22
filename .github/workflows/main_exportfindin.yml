@@ -30,8 +30,10 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
-      - name: Publish Function App
-        run: func azure functionapp publish exportfindin --python
+      - name: Publish Function App exactly like local
+        run: |
+          func azure functionapp publish exportfindin --python --publish-local-settings -i
         env:
-          AZURE_FUNCTIONAPP_PUBLISH_PROFILE: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3E85A362775E473C90D248EFEA2FD480 }}
+          SCM_DO_BUILD_DURING_DEPLOYMENT: true
+          ENABLE_ORYX_BUILD: true
         
