@@ -1,13 +1,10 @@
-name: Deploy Azure Function - exportfindin
+name: Publish Azure Function - exportfindin
 
 on:
   workflow_dispatch:
   push:
     branches:
       - main
-
-env:
-  PYTHON_VERSION: '3.10'
 
 jobs:
   deploy:
@@ -17,20 +14,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install Azure Functions Core Tools
+        run: npm install -g azure-functions-core-tools@4 --unsafe-perm true
+
+      - name: Install Python dependencies
         run: pip install -r requirements.txt
 
-      - name: Deploy to Azure Functions
-        uses: Azure/functions-action@v1
-        with:
-          app-name: 'exportfindin'
-          slot-name: 'Production'
-          package: '.'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3E85A362775E473C90D248EFEA2FD480 }}
-          sku: 'flexconsumption'
+      - name: Publish Function App
+        run: func azure functionapp publish exportfindin --python
+        env:
+          AZURE_FUNCTIONAPP_PUBLISH_PROFILE: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3E85A362775E473C90D248EFEA2FD480 }}
         
